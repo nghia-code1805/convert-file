@@ -70,6 +70,16 @@ public class Controller {
             Iterator<Row> iterator = sheet.iterator();
             while (iterator.hasNext()) {
                 Row nextRow = iterator.next();
+                int rowNum = nextRow.getRowNum();
+                if (rowNum < 8) {
+                    continue;
+                }
+                Cell cellMaNV = nextRow.getCell(0);
+                String maNV = cellMaNV.getStringCellValue();
+                Cell cellLLUpload = nextRow.getCell(1);
+                if (cellLLUpload.getStringCellValue() == null || cellLLUpload.getStringCellValue().equals("")){
+                    System.out.println("trường này bắt buộc nhập");
+                }
                 Iterator<Cell> cellIterator = nextRow.cellIterator();
                 while (cellIterator.hasNext()) {
                     Cell cell = cellIterator.next();
@@ -93,9 +103,6 @@ public class Controller {
             fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("TXT files (*.txt)", "*.txt"));
             fileChooser.setTitle("Save your files");
 
-//            FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("TXT files (*.txt)", "*.txt");
-//            fileChooser.getExtensionFilters().add(extFilter);
-
             File fileTxt = fileChooser.showSaveDialog(primaryStage);
             if (fileTxt != null) {
                 try {
@@ -106,7 +113,7 @@ public class Controller {
             }
 
         } catch (Exception e) {
-            e.getMessage();
+            e.printStackTrace();
         }
     }
 
