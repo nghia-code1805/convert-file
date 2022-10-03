@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onMouseClicked="#handleClick" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
+   <children>
+      <Button layoutX="300.0" layoutY="188.0" mnemonicParsing="false" onAction="#pressButton" text="Upload" />
+      <Label fx:id="labelNameUpload" layoutX="125.0" layoutY="89.0" text="File upload" />
+      <Label layoutX="58.0" layoutY="89.0" text="file tải lên :" />
+      <Button fx:id="convertTxt" layoutX="191.0" layoutY="188.0" mnemonicParsing="false" onAction="#saveFileConvert" text="Convert txt" />
+      <Label layoutX="58.0" layoutY="115.0" text="tổng số hàng :" />
+      <Label fx:id="totalRow" layoutX="141.0" layoutY="115.0" text="Total row" />
+   </children>
+</AnchorPane>
