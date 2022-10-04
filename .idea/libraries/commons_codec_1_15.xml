@@ -1,11 +1,9 @@
 <component name="libraryTable">
   <library name="commons-codec-1.15">
     <CLASSES>
-      <root url="jar://$PROJECT_DIR$/../javanangcao/lib/libs/commons-codec-1.15.jar!/" />
       <root url="jar://$PROJECT_DIR$/../javanangcao/lib/libs/commons-collections4-4.4.jar!/" />
       <root url="jar://$PROJECT_DIR$/../javanangcao/lib/libs/commons-compress-1.18.jar!/" />
       <root url="jar://$PROJECT_DIR$/../javanangcao/lib/libs/commons-io-2.11.0.jar!/" />
-      <root url="jar://$PROJECT_DIR$/../javanangcao/lib/libs/log4j-api-2.18.0.jar!/" />
       <root url="jar://$PROJECT_DIR$/../javanangcao/lib/libs/poi-4.1.2.jar!/" />
       <root url="jar://$PROJECT_DIR$/../javanangcao/lib/libs/poi-ooxml-4.1.2.jar!/" />
       <root url="jar://$PROJECT_DIR$/../javanangcao/lib/libs/poi-ooxml-schemas-4.1.2.jar!/" />
