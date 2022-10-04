@@ -23,6 +23,9 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.util.IOUtils;
+import org.controlsfx.control.Notifications;
+
+import javax.management.Notification;
 
 public class Controller {
 
@@ -74,12 +77,27 @@ public class Controller {
                 if (rowNum < 8) {
                     continue;
                 }
-                Cell cellMaNV = nextRow.getCell(0);
-                String maNV = cellMaNV.getStringCellValue();
                 Cell cellLLUpload = nextRow.getCell(1);
                 if (cellLLUpload.getStringCellValue() == null || cellLLUpload.getStringCellValue().equals("")){
-                    System.out.println("trường này bắt buộc nhập");
+                    notificationError(actionEvent);
+                    return;
                 }
+                Cell cellUser = nextRow.getCell(2);
+                if (cellUser.getStringCellValue() == null || cellUser.getStringCellValue().equals("")){
+                    notificationError(actionEvent);
+                    return;
+                }
+                Cell cellDatabase = nextRow.getCell(3);
+                if (cellDatabase.getStringCellValue() == null || cellDatabase.getStringCellValue().equals("")){
+                    notificationError(actionEvent);
+                    return;
+                }
+                Cell cellISDN = nextRow.getCell(5);
+                if (cellISDN.getStringCellValue() == null || cellISDN.getStringCellValue().equals("")){
+                    notificationError(actionEvent);
+                    return;
+                }
+
                 Iterator<Cell> cellIterator = nextRow.cellIterator();
                 while (cellIterator.hasNext()) {
                     Cell cell = cellIterator.next();
@@ -126,5 +144,8 @@ public class Controller {
         } catch (IOException ex) {
             Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+    private void notificationError(ActionEvent actionEvent){
+        Notifications.create().title("Thông Báo").text("có 1 số ô bắt buộc nhập đang bị trống bị trống").showError();
     }
 }
