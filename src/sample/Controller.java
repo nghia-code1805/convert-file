@@ -9,7 +9,6 @@ import javafx.scene.control.Label;
 import javafx.stage.FileChooser;
 
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
 
 import javafx.stage.Stage;
@@ -18,24 +17,26 @@ import org.apache.logging.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.util.IOUtils;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
 
 public class Controller {
 
     private static final Logger logger = LogManager.getLogger(Controller.class);
 
+    @FXML
     public Button convertTxt;
     @FXML
     private Label totalRow;
     @FXML
     private Label labelNameUpload;
+    @FXML
+    private Button btnUpload;
 
     Stage primaryStage;
 
     File file;
 
     public void pressButton(ActionEvent actionEvent) {
-//        System.out.println("nghiant");
         try {
             FileChooser fileChooser = new FileChooser();
             fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Excel (*.xlsx)", "*.xlsx"),
@@ -122,13 +123,12 @@ public class Controller {
             FileChooser fileChooser = new FileChooser();
             fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("TXT files (*.txt)", "*.txt"));
             fileChooser.setTitle("Save your files");
-
             File fileTxt = fileChooser.showSaveDialog(primaryStage);
             if (fileTxt != null) {
                 try {
                     saveTextToFile(sb.toString(), fileTxt);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    logger.error(e.getMessage(), e);
                 }
             }
 
