@@ -9,10 +9,7 @@ import javafx.scene.control.Label;
 import javafx.stage.FileChooser;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
@@ -115,13 +112,19 @@ public class Controller {
     }
 
     private void saveTextToFile(String content, File file) {
+        Writer out = null;
         try {
-            PrintWriter writer;
-            writer = new PrintWriter(file);
-            writer.println(content);
-            writer.close();
+            out = new BufferedWriter(new OutputStreamWriter(
+                    new FileOutputStream(file), "UTF-8"));
+            out.write(content);
         } catch (IOException ex) {
             logger.error(ex.getMessage(), ex);
+        } finally {
+            try {
+                out.close();
+            } catch (IOException e) {
+                logger.error(e.getMessage(),e);
+            }
         }
     }
 
@@ -147,11 +150,13 @@ public class Controller {
                     sb.append(cell.getStringCellValue()).append("|");
                     break;
                 case NUMERIC:
-                    sb.append(cell.getNumericCellValue()).append("|");
+                    String convertString = convertDoubleToString(String.valueOf(cell.getNumericCellValue()));
+                    sb.append(convertString).append("|");
                     break;
                 default:
                     sb.append(cell.getStringCellValue()).append("|");
             }
+            countCheck++;
         }
         sb.deleteCharAt(sb.length() - 1);
         sb.append("\n");
@@ -168,7 +173,7 @@ public class Controller {
         boolean flag = false;
         switch (cellCheck.getCellType()) {
             case STRING:
-                if (Objects.isNull(cellCheck.getStringCellValue())) {
+                if (Objects.isNull(cellCheck.getStringCellValue()) || cellCheck.getStringCellValue().isEmpty()) {
                     flag = true;
                 }
                 break;
@@ -176,6 +181,9 @@ public class Controller {
                 if (Objects.isNull(cellCheck.getNumericCellValue())) {
                     flag = true;
                 }
+                break;
+            case BLANK:
+                flag = true;
                 break;
         }
         return flag;
@@ -203,4 +211,16 @@ public class Controller {
         alert.setContentText("Dữ liệu bị lỗi. Vui lòng kiểm tra lại!");
         alert.showAndWait();
     }
+
+    private static String convertDoubleToString(String value){
+        List<String> stringList = Arrays.asList(value.split("\\."));
+        if (stringList.get(1).length() > 1){
+            return value;
+        }
+        if (Integer.parseInt(stringList.get(1))>0){
+            return value;
+        }
+        return stringList.get(0);
+    }
+
 }
