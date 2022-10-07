@@ -9,7 +9,10 @@ import javafx.scene.control.Label;
 import javafx.stage.FileChooser;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
 
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
@@ -39,8 +42,8 @@ public class Controller {
     public void pressButton(ActionEvent actionEvent) {
         try {
             FileChooser fileChooser = new FileChooser();
-            fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Excel (*.xlsx)", "*.xlsx"),
-                    new FileChooser.ExtensionFilter("Excel (*.xls)", "*.xls"));
+            fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Excel (.xlsx)", "*.xlsx"),
+                    new FileChooser.ExtensionFilter("Excel (.xls)", "*.xls"));
             file = fileChooser.showOpenDialog(null);
             if (file != null) {
                 labelNameUpload.setText(file.getAbsolutePath());
@@ -63,7 +66,6 @@ public class Controller {
             workbook = StreamingReader.builder().rowCacheSize(100).bufferSize(4096).open(fileInput);
         } else if (excelFilePath.endsWith("xls")) {
             workbook = (Workbook) new HSSFWorkbook(fileInput);
-//            HSSFWorkbook hssfWorkbook = new HSSFWorkbook(fileInput);
         }
 
         long dateStart = System.currentTimeMillis();
@@ -71,57 +73,32 @@ public class Controller {
         Sheet sheet = workbook.getSheetAt(0);
         int totalRowSheet = sheet.getLastRowNum();
         totalRow.setText(String.valueOf(totalRowSheet));
+        List<Integer> lstIdxMapCheck = new ArrayList<>();
         try {
             Iterator<Row> iterator = sheet.iterator();
             while (iterator.hasNext()) {
                 Row nextRow = iterator.next();
                 int rowNum = nextRow.getRowNum();
-                if (rowNum < 8) {
+                if (rowNum < 7) {
                     continue;
                 }
-                Cell cellLLUpload = nextRow.getCell(1);
-                String convertLLUpload = String.valueOf(cellLLUpload.getNumericCellValue());
-                if (convertLLUpload == null || convertLLUpload.equals("")) {
-                    showErrorMessenger();
-                    return;
-                }
-                Cell cellUser = nextRow.getCell(2);
-                if (cellUser.getStringCellValue() == null || cellUser.getStringCellValue().equals("")) {
-                    showErrorMessenger();
-                    return;
-                }
-                Cell cellDatabase = nextRow.getCell(3);
-                if (cellDatabase.getStringCellValue() == null || cellDatabase.getStringCellValue().equals("")) {
-                    showErrorMessenger();
-                    return;
-                }
-                Cell cellISDN = nextRow.getCell(5);
-                String convertISDN = String.valueOf(cellISDN.getNumericCellValue());
-                if (convertISDN == null || convertISDN.equals("")) {
-                    showErrorMessenger();
-                    return;
+                if (rowNum == 7){
+                    getHeader(nextRow, lstIdxMapCheck);
+                    continue;
                 }
 
-                Iterator<Cell> cellIterator = nextRow.cellIterator();
-                while (cellIterator.hasNext()) {
-                    Cell cell = cellIterator.next();
-                    switch (cell.getCellType()) {
-                        case STRING:
-                            sb.append(cell.getStringCellValue() + "|");
-                            break;
-                        case NUMERIC:
-                            sb.append(cell.getNumericCellValue() + "|");
-                            break;
-                        default:
-                            sb.append(cell.getStringCellValue() + "|");
-                    }
+                if (processDataContent(nextRow, sb, lstIdxMapCheck)) {
+                    return;
                 }
-                sb.append("\n");
             }
             workbook.close();
             fileInput.close();
+            long endDate = System.currentTimeMillis();
+            System.out.println("end " + endDate);
+            Float total = Float.valueOf(endDate - dateStart) / 1000;
+            System.out.println("total " + total + " giây");
             FileChooser fileChooser = new FileChooser();
-            fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("TXT files (*.txt)", "*.txt"));
+            fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("TXT files (.txt)", ".txt"));
             fileChooser.setTitle("Save your files");
             File fileTxt = fileChooser.showSaveDialog(primaryStage);
             if (fileTxt != null) {
@@ -145,6 +122,77 @@ public class Controller {
             writer.close();
         } catch (IOException ex) {
             logger.error(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * @param row
+     * @param sb
+     * @param lst
+     * @return true => data error
+     */
+    private boolean processDataContent(Row row, StringBuilder sb, List<Integer> lst) {
+        Iterator<Cell> cellIterator = row.cellIterator();
+        int countCheck = 0;
+        while (cellIterator.hasNext()) {
+            Cell cell = cellIterator.next();
+            if (lst.contains(countCheck)) {
+                if (processCheckCell(row, countCheck)) {
+                    showErrorMessenger();
+                    return true;
+                }
+            }
+            switch (cell.getCellType()) {
+                case STRING:
+                    sb.append(cell.getStringCellValue()).append("|");
+                    break;
+                case NUMERIC:
+                    sb.append(cell.getNumericCellValue()).append("|");
+                    break;
+                default:
+                    sb.append(cell.getStringCellValue()).append("|");
+            }
+        }
+        sb.deleteCharAt(sb.length() - 1);
+        sb.append("\n");
+        return false;
+    }
+
+    /**
+     * @param row
+     * @param idx
+     * @return true => is null
+     */
+    private boolean processCheckCell(Row row, int idx) {
+        Cell cellCheck = row.getCell(idx);
+        boolean flag = false;
+        switch (cellCheck.getCellType()) {
+            case STRING:
+                if (Objects.isNull(cellCheck.getStringCellValue())) {
+                    flag = true;
+                }
+                break;
+            case NUMERIC:
+                if (Objects.isNull(cellCheck.getNumericCellValue())) {
+                    flag = true;
+                }
+                break;
+        }
+        return flag;
+    }
+
+
+    private void getHeader(Row row, List<Integer> lst) {
+        int countCellHeader = 0;
+        lst.clear();
+        for (Cell cell : row) {
+            if (cell.getCellType() == CellType.STRING) {
+                String dtCell = cell.getStringCellValue();
+                if (dtCell.endsWith("(*)")) {
+                    lst.add(countCellHeader);
+                }
+            }
+            countCellHeader++;
         }
     }
 
